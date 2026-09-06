@@ -33,12 +33,25 @@ regexes = [
 [[rules]]
 id = "assigned-secret"
 description = "Credential-looking assignment to a literal value"
-regex = '''(?i)(accesstoken|publickey|webhooksecret|marketplaceclientsecret|dbpass|password)\s*(=>|=|:)\s*['"][^'"$\s]{12,}['"]'''
+# The label may be one or two words ("webhook secret", "webhooksecret"), the
+# separator may be =>, = or :, and the value may or may not be quoted. Prose
+# credential sheets are as much of a leak risk as code, and they do not use
+# quotes.
+regex = '''(?i)(access[ _-]?token|public[ _-]?key|webhook[ _-]?secret|client[ _-]?secret|db[ _-]?pass|password)\s*(=>|=|:)\s*['"]?[^\s'"$<>]{12,}['"]?'''
 [rules.allowlist]
 regexes = [
     '''CHANGE_ME''',
-    '''(?i)(your|example|placeholder|redacted)''',
+    '''(?i)(your|example|placeholder|redacted|supplied|separately)''',
+    '''\.\.\.''',
 ]
+
+[[rules]]
+id = "bare-hex-secret"
+description = "A long bare hex string, the shape of a Mercado Pago webhook secret"
+# The webhook secret carries no prefix and no structure -- 64 hex characters and
+# nothing else -- so it can only be caught on shape. Narrow enough not to fire on
+# git SHAs (40) or UUIDs (hyphenated).
+regex = '''\b[0-9a-f]{64}\b'''
 
 # ---------------------------------------------------------------------------
 # Allowlist
