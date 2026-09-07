@@ -6,10 +6,13 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ## [Unreleased]
 
-Nothing yet. See the v1.1.1 section of `HANDOVER-v1.1.0.md` for what is committed
-next: porting `collector` from `enrol_mercadopagosub` so the currency and the
-account type are read from the collecting account rather than declared by hand,
-and reworking the Environment setting on top of it.
+Nothing yet.
+
+`1.1.x` is reserved for changes the Moodle Marketplace review asks for. `1.2.0`
+is the next planned release: porting `collector` from `enrol_mercadopagosub` so
+the currency and the account type are read from the collecting account rather
+than declared by hand, and reworking the Environment setting on top of it. See
+`HANDOVER-v1.1.0.md`.
 
 ## [1.1.0] - 2026-09-06
 
