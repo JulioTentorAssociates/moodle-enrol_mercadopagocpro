@@ -1,7 +1,7 @@
-# Mercado Pago Checkout Pro - Moodle enrolment plugin
+# Mercado Pago Checkout Pro (Tentor & Associates)
 
 ![Moodle Plugin](https://img.shields.io/badge/Moodle-Plugin-orange?style=flat&logo=moodle)
-![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=flat&logo=php&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-8.3+-777BB4?style=flat&logo=php&logoColor=white)
 ![License](https://img.shields.io/badge/License-GPL--3.0-blue.svg?style=flat&logo=gnu&logoColor=white)
 
 `enrol_mercadopagocpro` lets students pay for a course through **Mercado Pago
@@ -10,8 +10,7 @@ Checkout Pro** and be enrolled automatically once the payment is credited.
 - **Component:** `enrol_mercadopagocpro`
 - **Directory:** `enrol/mercadopagocpro`
 - **Main class:** `enrol_mercadopagocpro_plugin`
-- **Version:** v1.0.0
-- **Requires:** Moodle 5.2.2 (`2026042002.00`) or a later release of the 5.2 branch, PHP 8.2+
+- **Requires:** Moodle 5.2.2 (`2026042002.00`) or a later release of the 5.2 branch, PHP 8.3+
 - **Default currency:** ARS (BRL, CLP, COP, MXN, PEN and UYU are also selectable)
 - **Licence:** GPL v3 or later
 
@@ -62,9 +61,9 @@ Several Mercado Pago enrolment plugins already exist for Moodle, and this one ow
 - [`enrol_mercadopagoar`](https://github.com/jpgiecco/moodle-enrol_mercadopagoar), a variant of the above adapted to Argentina using Bricks.
 - [`enrol_mercadopago`](https://github.com/harregoces/moodle-enrol_mercadopago) and [a fork of it](https://github.com/equicomv2/moodle-enrol_mercadopago), covering several countries.
 
-`enrol_mercadopagocpro` is a separate component rather than a fork. What it adds is a current codebase written against Moodle 5.2 and the official `mercadopago/dx-php` SDK, documented architecture, and an automated test suite (65 PHPUnit tests) that runs against a real site.
+`enrol_mercadopagocpro` is a separate component rather than a fork. What it adds is a current codebase written against Moodle 5.2 and the official `mercadopago/dx-php` SDK, documented architecture, and an automated test suite (67 PHPUnit tests) that runs against a real site.
 
-I want to acknowledge all of them: they pushed me to develop this plugin, first for my own needs and then for anyone else who needs it. — Julio Tentor, `jtentor@gmail.com`
+I want to acknowledge all of them: they pushed me to develop this plugin, first for my own needs and then for anyone else who needs it. — Julio Tentor, `jtentor@juliotentor.com`
 
 The component name is deliberately distinct so that it can be installed alongside any of the above without colliding.
 
@@ -89,7 +88,7 @@ Specifically, these tools were employed as technical assistants for the architec
 3. Enable the method in **Site administration ▸ Plugins ▸ Enrolments ▸ Manage enrol plugins**.
 4. Configure the credentials in **Site administration ▸ Plugins ▸ Enrolments ▸ Mercado Pago Checkout Pro**.
 
-The official Mercado Pago PHP SDK is bundled under `vendor/mercadopago`, so no Composer step is required. If you prefer to manage it yourself, run `composer install --no-dev` inside the plugin directory; a `vendor/autoload.php` there takes precedence over the bundled copy.
+The official Mercado Pago PHP SDK is bundled under `vendor/mercadopago`, so no Composer step is required — and Composer must not be run inside the plugin directory. The bundled copy is byte-identical to upstream 3.14.0 and declared as such in `thirdpartylibs.xml`; a second copy installed alongside it would make that declaration false. The settings page reports the detected SDK version.
 
 See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for the full production checklist.
 

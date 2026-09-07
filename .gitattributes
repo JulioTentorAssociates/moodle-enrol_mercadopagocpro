@@ -1,0 +1,62 @@
+# ---------------------------------------------------------------------------
+# Line endings
+# ---------------------------------------------------------------------------
+# The working tree was stored with CRLF and something on the authoring side
+# keeps reintroducing it. Normalising here is the durable fix: git stores LF in
+# the object database regardless of what the editor writes, and `git archive`
+# honours these attributes, so the released package is always LF.
+#
+# Apply once, after adding this file:
+#     git add .gitattributes
+#     git add --renormalize .
+#     git commit -m "Normalise line endings to LF"
+
+* text=auto eol=lf
+
+# The bundled Mercado Pago SDK must stay byte-for-byte identical to upstream
+# 3.14.0, which thirdpartylibs.xml declares. Renormalisation must never touch
+# it. `-text` disables all conversion for these paths.
+vendor/**       -text
+
+*.png           binary
+*.jpg           binary
+*.gif           binary
+*.ico           binary
+
+# ---------------------------------------------------------------------------
+# Package building for Moodle Marketplace
+# ---------------------------------------------------------------------------
+# `export-ignore` removes a path from `git archive` output without affecting
+# `git clone`. The repository keeps everything; the published ZIP carries only
+# what a Moodle site needs.
+#
+#     git archive --format=zip --prefix=mercadopagocpro/ \
+#         -o enrol_mercadopagocpro-v1.1.0.zip v1.1.0
+#
+# The --prefix produces the single top-level `mercadopagocpro/` directory the
+# installer expects. Without it the files land at the archive root and the
+# install fails.
+
+.github/                export-ignore
+.githooks/              export-ignore
+.vscode/                export-ignore
+.gitattributes          export-ignore
+.gitignore              export-ignore
+.editorconfig           export-ignore
+.gitleaks.toml          export-ignore
+.phpcs.xml              export-ignore
+.moodle-plugin-ci.yml   export-ignore
+
+# Translations are contributed through AMOS after approval, not shipped in the
+# package. Only the English strings ship.
+translations/           export-ignore
+
+# There is deliberately no rule for composer.json here. The plugin's own
+# composer.json was removed from the repository in v1.1.0; the only one left is
+# vendor/mercadopago/composer.json, which belongs to the SDK and MUST ship --
+# removing it would break the byte-identity with upstream 3.14.0 that
+# thirdpartylibs.xml declares.
+#
+# If a rule is ever needed here, anchor it: a pattern without a slash matches at
+# every depth, so a bare `composer.json` would silently take the SDK's with it.
+# Write `/composer.json` to mean the one at the plugin root.

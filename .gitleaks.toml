@@ -1,0 +1,71 @@
+# gitleaks configuration for enrol_mercadopagocpro.
+#
+# Run against the full history, not the working tree:
+#
+#     gitleaks git --config .gitleaks.toml --log-opts="--all --full-history" -v
+#
+# Development-only; excluded from the released package by .gitattributes.
+
+[extend]
+useDefault = true
+
+# ---------------------------------------------------------------------------
+# Mercado Pago credentials
+# ---------------------------------------------------------------------------
+# The default rule set knows nothing about this platform. Access tokens and
+# public keys carry a prefix and are matchable; the webhook secret, the
+# marketplace client secret and the database password are plain strings with no
+# recognisable shape and can only be found by context, which is what the second
+# rule does.
+
+[[rules]]
+id = "mercadopago-token"
+description = "Mercado Pago access token or public key"
+regex = '''(APP_USR|TEST)-[0-9a-f]{8,}[-0-9a-f]*'''
+[rules.allowlist]
+# Placeholders used in fixtures, documentation and the SDK's own examples.
+regexes = [
+    '''APP_USR-secret''',
+    '''APP_USR-other-token''',
+    '''(APP_USR|TEST)-(YOUR|xxx|\.\.\.)''',
+]
+
+[[rules]]
+id = "assigned-secret"
+description = "Credential-looking assignment to a literal value"
+# The label may be one or two words ("webhook secret", "webhooksecret"), the
+# separator may be =>, = or :, and the value may or may not be quoted. Prose
+# credential sheets are as much of a leak risk as code, and they do not use
+# quotes.
+regex = '''(?i)(access[ _-]?token|public[ _-]?key|webhook[ _-]?secret|client[ _-]?secret|db[ _-]?pass|password)\s*(=>|=|:)\s*['"]?[^\s'"$<>]{12,}['"]?'''
+[rules.allowlist]
+regexes = [
+    '''CHANGE_ME''',
+    '''(?i)(your|example|placeholder|redacted|supplied|separately)''',
+    '''\.\.\.''',
+]
+
+[[rules]]
+id = "bare-hex-secret"
+description = "A long bare hex string, the shape of a Mercado Pago webhook secret"
+# The webhook secret carries no prefix and no structure -- 64 hex characters and
+# nothing else -- so it can only be caught on shape. Narrow enough not to fire on
+# git SHAs (40) or UUIDs (hyphenated).
+regex = '''\b[0-9a-f]{64}\b'''
+
+# ---------------------------------------------------------------------------
+# Allowlist
+# ---------------------------------------------------------------------------
+
+[allowlist]
+description = "Paths and values that are not secrets"
+
+paths = [
+    # The bundled Mercado Pago SDK. Its Resources/Order/*.php files carry
+    # "/** API version: <uuid> */" docblocks, which the default generic-api-key
+    # rule reports on entropy alone -- 75 findings, none of them a credential
+    # and none of them ours. The tree is byte-identical to upstream 3.14.0,
+    # verified by diff against the released tarball, and thirdpartylibs.xml
+    # declares it as such. Anything that appears here is upstream's to fix.
+    '''^vendor/''',
+]

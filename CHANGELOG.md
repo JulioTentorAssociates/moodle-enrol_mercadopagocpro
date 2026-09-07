@@ -4,7 +4,97 @@ All notable changes to `enrol_mercadopagocpro` are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - v1.0.1
+## [Unreleased] - v1.1.0
+
+Compliance release for Moodle Marketplace. No functional change.
+
+### Changed
+
+- **Copyright is now held by Julio Tentor & Associates**, with authorship
+  attributed separately through `@author`. Applied to all 57 PHP files.
+- **`$string['pluginname']` is now "Mercado Pago Checkout Pro (Tentor &
+  Associates)".** `enrol_mpcheckoutpro` uses effectively the same words, so a
+  site with both installed previously saw two indistinguishable entries in the
+  *Add method* dropdown.
+- **All files converted to Unix line endings.** The tree was stored with CRLF,
+  which the Moodle coding style does not use.
+- **`composer.json` removed from the repository.** It recorded how the bundled
+  SDK was produced, but its presence invited exactly the Composer run that
+  breaks the bundle, and the version pin it documented is already stated in
+  `thirdpartylibs.xml`, which is the file Moodle actually reads.
+- The Spanish language pack moved out of `lang/` and no longer ships in the
+  package. Only English strings ship; translations are contributed through AMOS
+  after approval, as the contribution guidelines require.
+
+### Fixed
+
+- **Two settings-page strings described behaviour the plugin does not have.**
+  `environment_desc` claimed the buyer is sent to a sandbox checkout in the test
+  environment; there is no sandbox checkout — `sandbox_init_point` is a legacy
+  field that produces a redirect loop, and the plugin always uses `init_point`.
+  `testmodenotice` promised that no real money would be charged, which the
+  setting cannot guarantee: whether money moves is decided by the Mercado Pago
+  account the credentials belong to, not by which slot they were pasted into.
+  Both rewritten, and the credentials section now explains the test seller model
+  outright — the account is what makes a payment a test, not the type of
+  credential, and a real account's `TEST-` credentials cannot complete a payment
+  at all.
+
+- **The plugin contradicted itself about Composer, and the loader was on the
+  wrong side of it.** `sdk::register()` preferred a `vendor/autoload.php` inside
+  the plugin directory over the bundled SDK, and `README.md`,
+  `docs/DEPLOYMENT.md` and `docs/TROUBLESHOOTING.md` all recommended creating one
+  — while `cli/diagnose.php` reported those same files as an error state and
+  `docs/TESTING.md` warned against producing them. Following the documentation
+  therefore replaced the audited bundle that `thirdpartylibs.xml` declares as
+  unmodified upstream 3.14.0, silently making that declaration false. The
+  bundled copy is now the only source the plugin loads from, a
+  `vendor/autoload.php` there is ignored, and the three documents say so. Moodle
+  requires that a plugin install without an administrator running Composer, so
+  there was never a supported configuration on the other side of this.
+
+- **Incomplete erasure in the privacy provider.** `enrol_mercadopagocpro_wh`
+  was neither declared in `get_metadata()` nor deleted by any of the three
+  delete methods, so erasing a user left webhook log rows pointing at a `txnid`
+  that no longer existed. The table is now declared, exported alongside the
+  transactions it belongs to, and deleted with them. Deletion happens before the
+  transaction rows go, because once those are gone there is nothing left to find
+  the notifications by.
+- **`export_user_data()` emitted three fields `get_metadata()` did not
+  declare**: `statusdetail`, `enrolmentstate` and `paymenttypeid`. All three are
+  now declared, and a new test compares the exported keys against the declared
+  ones so the two cannot drift apart again.
+- **README claimed PHP 8.2+.** Moodle 5.2 requires PHP 8.3 or later, so the
+  stated requirement was wrong in both the badge and the requirements list.
+  `composer.json` carried the same wrong constraint.
+- README carried a hard-coded `Version: v1.0.0` line that was already stale at
+  v1.0.1. Removed rather than corrected: `version.php` is the only place the
+  version needs to exist, and this line has drifted once already.
+
+### Added
+
+- **Continuous integration.** `.github/workflows/ci.yml` runs moodle-plugin-ci
+  across PHP 8.3/8.4 and PostgreSQL/MariaDB against `MOODLE_502_STABLE`. The
+  PostgreSQL leg is the first time this plugin has been exercised on anything
+  other than MariaDB.
+- `.gitattributes` builds the distribution package with `git archive`, excluding
+  development-only files and producing the `mercadopagocpro/` top-level
+  directory the installer expects.
+- `cli/diagnose.php` now announces the sections it skips. Sections 5, 5b, 9, 10
+  and 11 only run when `--courseid`, `--tryadd` or `--fixorphans` is supplied,
+  and the numbering used to jump — 4 straight to 6, 8 straight to 11 — which
+  reads as something having failed silently. Each skipped section now prints one
+  line saying what would run it.
+- `docs/ADMINISTRATOR-SETUP.md`, replacing `docs/HUMAN-TASKS.md`: the same
+  material stated as what an administrator must configure rather than as a list
+  of known gaps.
+- The Behat scenario that needs an HTTPS site is tagged
+  `@enrol_mercadopagocpro_https`, so it can be run or excluded on its own.
+  Continuous integration does not run Behat at all: the site it serves is plain
+  http, so that scenario could only ever fail there. Behat remains a pre-release
+  check on the HTTPS development site; `docs/TESTING.md` says how to run it.
+
+## [1.0.1] - 2026-08-28
 
 ### Fixed
 
