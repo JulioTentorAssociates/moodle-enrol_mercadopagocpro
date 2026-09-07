@@ -61,9 +61,9 @@ Several Mercado Pago enrolment plugins already exist for Moodle, and this one ow
 - [`enrol_mercadopagoar`](https://github.com/jpgiecco/moodle-enrol_mercadopagoar), a variant of the above adapted to Argentina using Bricks.
 - [`enrol_mercadopago`](https://github.com/harregoces/moodle-enrol_mercadopago) and [a fork of it](https://github.com/equicomv2/moodle-enrol_mercadopago), covering several countries.
 
-`enrol_mercadopagocpro` is a separate component rather than a fork. What it adds is a current codebase written against Moodle 5.2 and the official `mercadopago/dx-php` SDK, documented architecture, and an automated test suite (65 PHPUnit tests) that runs against a real site.
+`enrol_mercadopagocpro` is a separate component rather than a fork. What it adds is a current codebase written against Moodle 5.2 and the official `mercadopago/dx-php` SDK, documented architecture, and an automated test suite (67 PHPUnit tests) that runs against a real site.
 
-I want to acknowledge all of them: they pushed me to develop this plugin, first for my own needs and then for anyone else who needs it. — Julio Tentor, `jtentor@gmail.com`
+I want to acknowledge all of them: they pushed me to develop this plugin, first for my own needs and then for anyone else who needs it. — Julio Tentor, `jtentor@juliotentor.com`
 
 The component name is deliberately distinct so that it can be installed alongside any of the above without colliding.
 
