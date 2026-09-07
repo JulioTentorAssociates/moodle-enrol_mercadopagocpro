@@ -138,8 +138,14 @@ else
         GITLEAKS_CMD="gitleaks protect --staged"
     fi
 
-    if ! $GITLEAKS_CMD --config .gitleaks.toml --redact --no-banner 2>&1 \
-            | sed 's/^/  /' >&2; then
+    # Capture, then test. Piping gitleaks straight into sed would make the
+    # pipeline's exit status sed's, which is always zero, and the check would
+    # silently never fire.
+    GL_OUTPUT=$($GITLEAKS_CMD --config .gitleaks.toml --redact --no-banner 2>&1)
+    GL_STATUS=$?
+
+    if [ "$GL_STATUS" -ne 0 ]; then
+        printf '%s\n' "$GL_OUTPUT" | sed 's/^/  /' >&2
         echo "" >&2
         echo "${RED}A staged change looks like a credential.${RESET}" >&2
         echo "" >&2
