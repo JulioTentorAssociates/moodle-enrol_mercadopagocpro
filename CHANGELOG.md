@@ -4,9 +4,18 @@ All notable changes to `enrol_mercadopagocpro` are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - v1.1.0
+## [Unreleased]
 
-Compliance release for Moodle Marketplace. No functional change.
+Nothing yet. See the v1.1.1 section of `HANDOVER-v1.1.0.md` for what is committed
+next: porting `collector` from `enrol_mercadopagosub` so the currency and the
+account type are read from the collecting account rather than declared by hand,
+and reworking the Environment setting on top of it.
+
+## [1.1.0] - 2026-09-06
+
+Compliance release for publication on Moodle Marketplace. No functional change:
+every entry below is either metadata, packaging, documentation, tooling, or a
+correction to something that was already wrong.
 
 ### Changed
 
