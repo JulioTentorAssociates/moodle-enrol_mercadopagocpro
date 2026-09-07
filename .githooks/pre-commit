@@ -129,7 +129,16 @@ if ! command -v gitleaks >/dev/null 2>&1; then
 elif [ ! -f .gitleaks.toml ]; then
     echo "${YELLOW}.gitleaks.toml not found; skipping the secret scan.${RESET}" >&2
 else
-    if ! gitleaks protect --staged --config .gitleaks.toml --redact --no-banner 2>&1 \
+    # `gitleaks protect` was deprecated in favour of `gitleaks git --staged`
+    # during the 8.x series. Pick whichever this binary actually supports rather
+    # than pinning a form that breaks on the next upgrade.
+    if gitleaks git --help 2>&1 | grep -q -- '--staged'; then
+        GITLEAKS_CMD="gitleaks git --staged"
+    else
+        GITLEAKS_CMD="gitleaks protect --staged"
+    fi
+
+    if ! $GITLEAKS_CMD --config .gitleaks.toml --redact --no-banner 2>&1 \
             | sed 's/^/  /' >&2; then
         echo "" >&2
         echo "${RED}A staged change looks like a credential.${RESET}" >&2
