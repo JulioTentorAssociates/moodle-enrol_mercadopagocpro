@@ -2,10 +2,11 @@
 #
 # Pre-commit hook for moodle-enrol_mercadopagocpro.
 #
-# Two checks:
-#   1. PHP syntax, read from the index rather than from the working tree.
-#   2. A guard on vendor/, which must stay byte-identical to the upstream
+# Three checks, all of them against the index rather than the working tree:
+#   1. A guard on vendor/, which must stay byte-identical to the upstream
 #      Mercado Pago SDK that thirdpartylibs.xml declares.
+#   2. PHP syntax.
+#   3. Secrets, via gitleaks and the repository's own .gitleaks.toml.
 #
 # Bypass the vendor guard deliberately when you really are updating the SDK:
 #   ALLOW_VENDOR=1 git commit ...
@@ -108,6 +109,39 @@ else
         STATUS=1
     elif [ "$CHECKED" -gt 0 ]; then
         echo "${GREEN}$CHECKED staged PHP file(s) parse cleanly.${RESET}" >&2
+    fi
+fi
+
+# ---------------------------------------------------------------------------
+# 3. Secrets, from the index
+# ---------------------------------------------------------------------------
+# GitHub's own secret scanning is free and on for public repositories, but it
+# only blocks pushes for its partner patterns, and Mercado Pago is not a partner.
+# Custom patterns need a paid GitHub Secret Protection plan. So the credentials
+# that actually matter here -- APP_USR- tokens, public keys and the bare-hex
+# webhook secret -- are covered by nothing except this check.
+#
+# gitleaks protect --staged reads the index, so it agrees with the syntax check
+# above about what is being committed rather than what is on disk.
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+    echo "${YELLOW}gitleaks not found on PATH; skipping the secret scan.${RESET}" >&2
+elif [ ! -f .gitleaks.toml ]; then
+    echo "${YELLOW}.gitleaks.toml not found; skipping the secret scan.${RESET}" >&2
+else
+    if ! gitleaks protect --staged --config .gitleaks.toml --redact --no-banner 2>&1 \
+            | sed 's/^/  /' >&2; then
+        echo "" >&2
+        echo "${RED}A staged change looks like a credential.${RESET}" >&2
+        echo "" >&2
+        echo "If it is real: remove it, and rotate it. Once it is in a commit it" >&2
+        echo "is compromised whether or not the commit is ever pushed." >&2
+        echo "" >&2
+        echo "If it is a placeholder, add it to the allowlist in .gitleaks.toml" >&2
+        echo "rather than bypassing this check, so the next one is caught." >&2
+        STATUS=1
+    else
+        echo "${GREEN}No secrets in the staged changes.${RESET}" >&2
     fi
 fi
 
