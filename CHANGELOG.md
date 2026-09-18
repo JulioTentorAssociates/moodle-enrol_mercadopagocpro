@@ -14,6 +14,25 @@ the currency and the account type are read from the collecting account rather
 than declared by hand, and reworking the Environment setting on top of it. See
 `HANDOVER-v1.1.0.md`.
 
+## [1.1.1] - 2026-09-18
+
+Requested by the Moodle Marketplace review.
+
+### Fixed
+
+- **Two cache definitions had no language string.** `db/caches.php` declares the
+  `ratelimit` and `webhookdedupe` caches, and Moodle requires a matching
+  `cachedef_<name>` string for each so that administrators can identify them in
+  *Site administration > Plugins > Caching > Configuration*. Both were missing.
+  Nothing malfunctioned; the two caches simply appeared unnamed.
+
+  None of the eight prechecks reproduced in this project's CI covers this —
+  `validate` checks that required files and a few specific strings exist, not
+  that every `db/` declaration has the string Moodle expects for it. The audit
+  that found these also confirmed that all six message providers in
+  `db/messages.php` and all six capabilities in `db/access.php` already have
+  theirs.
+
 ## [1.1.0] - 2026-09-06
 
 Compliance release for publication on Moodle Marketplace. No functional change:

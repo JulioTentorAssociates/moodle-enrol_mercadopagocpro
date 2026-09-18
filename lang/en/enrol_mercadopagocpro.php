@@ -42,6 +42,8 @@ $string['autoreturn'] = 'Return automatically';
 $string['autoreturn_desc'] = 'Send <code>auto_return=approved</code> so the buyer is redirected back to Moodle automatically after an approved payment.';
 $string['binarymode'] = 'Binary mode';
 $string['binarymode_desc'] = 'When enabled, a payment can only be approved or rejected - never left pending. This reduces the approval rate, so leave it off unless you need it.';
+$string['cachedef_ratelimit'] = 'Webhook and checkout rate limit counters';
+$string['cachedef_webhookdedupe'] = 'Recently seen webhook notifications';
 $string['categoryid'] = 'Item category';
 $string['categoryid_help'] = 'Mercado Pago item <code>category_id</code>. <code>learnings</code> is the category for courses and training.';
 $string['checkoutratelimit'] = 'Checkout rate limit';
