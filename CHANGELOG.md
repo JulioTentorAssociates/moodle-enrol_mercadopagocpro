@@ -33,6 +33,14 @@ Requested by the Moodle Marketplace review.
   `db/messages.php` and all six capabilities in `db/access.php` already have
   theirs.
 
+### Added
+
+- `tests/lang_declarations_test.php`, which walks `db/caches.php`,
+  `db/access.php` and `db/messages.php` and asserts that every declaration in
+  them has the language string Moodle expects. Adding a cache, a capability or a
+  message provider without its string is easy to do and invisible until someone
+  opens the page that should name it.
+
 ## [1.1.0] - 2026-09-06
 
 Compliance release for publication on Moodle Marketplace. No functional change:
