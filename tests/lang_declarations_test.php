@@ -69,7 +69,7 @@ final class lang_declarations_test extends \advanced_testcase
         $this->assertNotEmpty($capabilities, 'db/access.php declared no capabilities.');
 
         foreach (array_keys($capabilities) as $capability) {
-            // 'enrol/mercadopagocpro:config' is named by the string
+            // Capability 'enrol/mercadopagocpro:config' is named by the string
             // 'mercadopagocpro:config' in this component's language file.
             $identifier = substr($capability, strpos($capability, '/') + 1);
 
