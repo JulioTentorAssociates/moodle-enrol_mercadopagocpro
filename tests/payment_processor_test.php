@@ -321,6 +321,65 @@ final class payment_processor_test extends \advanced_testcase
     }
 
     /**
+     * A payment carrying no external_reference at all is refused.
+     *
+     * The regression the Moodle Marketplace review asked for. An empty reference
+     * used to skip the ownership check rather than fail it, so an approved
+     * payment of the right amount and currency settled whatever transaction it
+     * was presented against. return.php takes payment_id from the query string,
+     * so a logged-in buyer could present any such payment against their own
+     * pending transaction and be enrolled by it.
+     *
+     * The amount and currency are deliberately correct here: those checks pass,
+     * and the point is that they are not what binds a payment to a transaction.
+     *
+     * @return void
+     */
+    public function test_missing_reference_is_refused(): void {
+        $this->prepare();
+        $this->queue_payment(
+            [
+            'status' => 'approved',
+            'external_reference' => '',
+            'transaction_amount' => 100.00,
+            'currency_id' => 'ARS',
+            ]
+        );
+
+        $result = (new payment_processor())->process_payment('1122334455', $this->txn);
+
+        $this->assertFalse($result->is_handled());
+
+        $context = \context_course::instance($this->course->id);
+        $this->assertFalse(is_enrolled($context, $this->user));
+
+        // The transaction is left untouched, not marked approved and withheld.
+        $stored = transaction::get((int)$this->txn->id);
+        $this->assertNotSame('approved', (string)$stored->status);
+        $this->assertSame('none', (string)$stored->enrolmentstate);
+    }
+
+    /**
+     * A payment whose external_reference is missing only whitespace-wise is
+     * still refused.
+     *
+     * Guards against the check being weakened back to a truthiness test, where
+     * a reference of '0' or ' ' would pass.
+     *
+     * @return void
+     */
+    public function test_whitespace_reference_is_refused(): void {
+        $this->prepare();
+        $this->queue_payment(['status' => 'approved', 'external_reference' => ' ']);
+
+        $result = (new payment_processor())->process_payment('1122334455', $this->txn);
+
+        $this->assertFalse($result->is_handled());
+        $context = \context_course::instance($this->course->id);
+        $this->assertFalse(is_enrolled($context, $this->user));
+    }
+
+    /**
      * The buyer is added to the configured group when the payment is approved.
      *
      * @return void

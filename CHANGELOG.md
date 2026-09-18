@@ -18,6 +18,25 @@ than declared by hand, and reworking the Environment setting on top of it. See
 
 Requested by the Moodle Marketplace review.
 
+### Security
+
+- **A payment with no `external_reference` was accepted against any
+  transaction.** The ownership check refused a payment whose reference differed
+  from the transaction's, but skipped the check entirely when the reference was
+  empty — and nothing later restored the binding. `return.php` takes
+  `payment_id` from the query string, so a logged-in buyer holding a pending
+  transaction could present the id of any approved payment of the same amount
+  and currency made to the same collecting account — one created outside the
+  plugin, or through another integration on that account — and be enrolled by
+  it. A missing reference is now treated as a mismatch.
+
+  The amount and currency checks were never the binding: they establish that
+  some payment of the right size exists, not that it was made for this course.
+
+  Regression coverage added for an approved, amount-matching payment with an
+  empty reference, and for one with a whitespace-only reference so the check
+  cannot be weakened back into a truthiness test.
+
 ### Fixed
 
 - **Two cache definitions had no language string.** `db/caches.php` declares the

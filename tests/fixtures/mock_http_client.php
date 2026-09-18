@@ -86,6 +86,9 @@ class mock_http_client implements MPHttpClient
                 'id' => 1122334455,
                 'status' => 'approved',
                 'status_detail' => 'accredited',
+                // Deliberately empty: every test that expects a payment to settle
+                // must say which transaction it belongs to. A default that
+                // silently matched would hide the binding this plugin depends on.
                 'external_reference' => '',
                 'transaction_amount' => 100.00,
                 'currency_id' => 'ARS',

@@ -187,12 +187,26 @@ class payment_processor
     public function apply_payment(\stdClass $instance, \stdClass $transaction, object $payment): processing_result {
         $settings = instance_settings::from_instance($instance);
 
-        // The payment must belong to this transaction. Mercado Pago echoes the
-        // external_reference we sent, so a mismatch means the wrong payment.
+        // The payment must belong to this transaction, and this is the only thing
+        // that binds them. Every preference this plugin creates carries the
+        // transaction's signed external_reference, and Mercado Pago echoes it onto
+        // the resulting payment, so the reference is expected to be present and to
+        // match exactly.
+        //
+        // A missing reference is treated as a mismatch, not as "nothing to check".
+        // Until v1.1.1 an empty one skipped this branch entirely, which meant a
+        // logged-in buyer could pass any approved payment id of the right amount
+        // and currency to return.php against their own pending transaction -- a
+        // payment made outside the plugin, or through another integration on the
+        // same collecting account -- and be enrolled by it. The amount and
+        // currency checks below do not restore the binding: they only establish
+        // that some payment of the right size exists.
         $reference = (string)($payment->external_reference ?? '');
-        if ($reference !== '' && $reference !== (string)$transaction->externalreference) {
+        if ($reference === '' || $reference !== (string)$transaction->externalreference) {
             util::log_error(
-                'Payment external_reference does not match the transaction',
+                $reference === ''
+                    ? 'Payment carries no external_reference - cannot be bound to a transaction'
+                    : 'Payment external_reference does not match the transaction',
                 [
                 'txnid' => (int)$transaction->id,
                 'paymentid' => $payment->id ?? null,
